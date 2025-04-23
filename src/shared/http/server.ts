@@ -1,5 +1,6 @@
-import { errors } from 'celebrate';
 import 'dotenv/config';
+
+import { errors } from 'celebrate';
 import express from 'express';
 import { errorMiddleware } from '../middlewares/error';
 import routes from './routes';

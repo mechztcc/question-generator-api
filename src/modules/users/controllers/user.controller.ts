@@ -1,27 +1,13 @@
 import { Request, Response } from 'express';
-import { PrismaClient } from '../../../generated/prisma';
-
-import { hash } from 'bcryptjs';
+import { CreateUsersService } from '../services/create-users/create-users.service';
 
 export class UsersController {
-  private _prisma: PrismaClient;
-
-  constructor() {
-    this._prisma = new PrismaClient();
-  }
-
   async create(req: Request, res: Response): Promise<any> {
+    const createUserService = new CreateUsersService();
+
     const { name, email, password } = req.body;
 
-    const hashedPass = await hash(password, 8);
-
-    const user = await this._prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPass,
-      },
-    });
+    const user = await createUserService.create({ name, email, password });
 
     res.json(user);
   }
