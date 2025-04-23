@@ -7,8 +7,13 @@ export function errorMiddleware(
   next: NextFunction,
 ) {
 
+  let message = err.message || 'Erro interno do servidor.';
+
+  if (err.details) {
+    message = err.details.get('body').details[0].message;
+  }
+
   const statusCode = err.statusCode || 500;
-  const message = err.message || 'Erro interno do servidor.';
 
   res.status(statusCode).json({
     success: false,

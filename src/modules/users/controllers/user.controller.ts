@@ -1,14 +1,29 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '../../../generated/prisma';
-import GlobalErrors from '../../../shared/errors/global-error';
+
+import { hash } from 'bcryptjs';
 
 export class UsersController {
+  private _prisma: PrismaClient;
+
+  constructor() {
+    this._prisma = new PrismaClient();
+  }
+
   async create(req: Request, res: Response): Promise<any> {
-    // const { name, email, role } = req.body;
-    const prisma = new PrismaClient();
+    const { name, email, password } = req.body;
 
+    const hashedPass = await hash(password, 8);
 
-    res.json({ sucesso: false })
+    const user = await this._prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPass,
+      },
+    });
+
+    res.json(user);
   }
 
   async update() {}
