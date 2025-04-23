@@ -14,7 +14,7 @@ export class CreateUsersService {
     this._prisma = new PrismaClient();
   }
 
-  async create({ name, email, password }: IPayload) {
+  async execute({ name, email, password }: IPayload) {
     const emailExists = await this._prisma.user.findUnique({ where: { email } });
     if(emailExists) {
         throw new GlobalErrors('E-mail already in use')
