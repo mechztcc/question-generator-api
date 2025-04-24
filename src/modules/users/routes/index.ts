@@ -48,4 +48,11 @@ usersRouter.post(
   ),
 );
 
+usersRouter.post(
+  '/upload-file',
+  asyncHandler((req: Request, res: Response) =>
+    usersController.sendContent(req, res),
+  ),
+);
+
 export default usersRouter;
