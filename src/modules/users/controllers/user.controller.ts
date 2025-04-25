@@ -25,6 +25,14 @@ export class UsersController {
     res.json(session);
   }
 
+  async saveQuestion(req: Request, res: Response): Promise<void> {
+    const createUserSession = new AutenticateUsersService();
+    const { title, level, answers } = req.body;
+
+    
+    res.json({ title, level, answers  });
+  }
+
   async sendContent(req: Request, res: Response): Promise<void> {
     const { content } = req.body;
     
@@ -38,7 +46,7 @@ export class UsersController {
           role: 'user',
           content: `
           Gere 3 questões, com 4 alternativas cada sobre o conteudo a seguir:\n\n${content}.
-          Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, e answers: um array de objetos 
+          Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, que pode ser fácil, normal ou difícil e answers: um array de objetos 
           com value: a alternativa, e correct: bollean, true ou false.
           Retorne apenas o array de objetos
           `,
@@ -47,8 +55,14 @@ export class UsersController {
       model: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
     });
 
-    const summary = response.choices?.[0]?.message?.content ?? 'Resumo não encontrado.';
+    let summaryRaw = response.choices?.[0]?.message?.content ?? '[]'
 
-    res.send({ data: summary });
+    summaryRaw = summaryRaw.replace(/```[\s\S]*?```/, match => {
+      return match.replace(/```(json|javascript)?/, '').replace(/```/, '').trim()
+    })
+
+    let summaryParsed = JSON.parse(summaryRaw)
+
+    res.send({ questions: summaryParsed });
   }
 }
