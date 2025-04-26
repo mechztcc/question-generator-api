@@ -1,6 +1,6 @@
 import GlobalErrors from '../../../../shared/errors/global-error';
 import { compare } from 'bcryptjs';
-import { sign } from 'jsonwebtoken';
+import { sign, verify } from 'jsonwebtoken';
 import { PrismaClient } from '../../../../generated/prisma';
 
 interface IPayload {
@@ -26,12 +26,25 @@ export class AutenticateUsersService {
       throw new GlobalErrors('Invalid credentials');
     }
 
-    const token = sign({}, 'secret', { expiresIn: '1d' });
+    const token = sign(
+      {
+        exp: Math.floor(Date.now() / 1000) + 60 * 60,
+        id: `${userExists.id}`,
+      },
+      'secret',
+    );
+
+    const decodedToken = verify(token, 'secret') as {
+      id: string;
+      iat: number;
+      exp: number;
+    };
 
     return {
       email: userExists.email,
       name: userExists.name,
       token,
+      decodedToken,
     };
   }
 }

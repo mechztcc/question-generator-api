@@ -77,4 +77,12 @@ usersRouter.post(
   ),
 );
 
+usersRouter.get(
+  '/list-questions',
+  authenticateUser,
+  asyncHandler((req: Request, res: Response) =>
+    usersController.listQuestionsByUser(req, res),
+  ),
+);
+
 export default usersRouter;

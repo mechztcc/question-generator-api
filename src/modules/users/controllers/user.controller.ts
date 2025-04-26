@@ -3,6 +3,9 @@ import { AutenticateUsersService } from '../services/autenticate/autenticate-use
 import { CreateUsersService } from '../services/create-users/create-users.service';
 import Together from 'together-ai';
 import { log } from 'console';
+import { SaveQuestionService } from '../services/save-question/save-question.service';
+import GlobalErrors from '../../../shared/errors/global-error';
+import { ListSavedQuestionsByUserService } from '../services/list-saved-questions-by-user/list-saved-questions-by-user.service';
 
 export class UsersController {
   async create(req: Request, res: Response): Promise<void> {
@@ -26,16 +29,35 @@ export class UsersController {
   }
 
   async saveQuestion(req: Request, res: Response): Promise<void> {
-    const createUserSession = new AutenticateUsersService();
+    const createQuestion = new SaveQuestionService();
     const { title, level, answers } = req.body;
+    const userId = req.user?.id;
 
-    
-    res.json({ title, level, answers  });
+    if (!userId) {
+      throw new GlobalErrors('User credentials has not provided.', 401);
+    }
+
+    const quest = await createQuestion.execute({
+      title,
+      level,
+      answers,
+      userId,
+    });
+    res.json(quest);
+  }
+
+  async listQuestionsByUser(req: Request, res: Response) {
+    const listQuestionsService = new ListSavedQuestionsByUserService();
+    const userId = Number(req.user?.id);
+
+    const questions = await listQuestionsService.execute({ userId: userId });
+
+    res.json(questions);
   }
 
   async sendContent(req: Request, res: Response): Promise<void> {
     const { content } = req.body;
-    
+
     const together = new Together({
       apiKey: process.env.TOGETHER_API_KEY,
     });
@@ -55,13 +77,16 @@ export class UsersController {
       model: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
     });
 
-    let summaryRaw = response.choices?.[0]?.message?.content ?? '[]'
+    let summaryRaw = response.choices?.[0]?.message?.content ?? '[]';
 
-    summaryRaw = summaryRaw.replace(/```[\s\S]*?```/, match => {
-      return match.replace(/```(json|javascript)?/, '').replace(/```/, '').trim()
-    })
+    summaryRaw = summaryRaw.replace(/```[\s\S]*?```/, (match) => {
+      return match
+        .replace(/```(json|javascript)?/, '')
+        .replace(/```/, '')
+        .trim();
+    });
 
-    let summaryParsed = JSON.parse(summaryRaw)
+    let summaryParsed = JSON.parse(summaryRaw);
 
     res.send({ questions: summaryParsed });
   }
