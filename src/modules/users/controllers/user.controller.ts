@@ -56,7 +56,7 @@ export class UsersController {
   }
 
   async sendContent(req: Request, res: Response): Promise<void> {
-    const { content } = req.body;
+    const { content, alternatives, questionsCount } = req.body;
 
     const together = new Together({
       apiKey: process.env.TOGETHER_API_KEY,
@@ -67,7 +67,7 @@ export class UsersController {
         {
           role: 'user',
           content: `
-          Gere 3 questões, com 4 alternativas cada sobre o conteudo a seguir:\n\n${content}.
+          Gere ${questionsCount} questões, com ${alternatives} alternativas cada sobre o conteudo a seguir:\n\n${content}.
           Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, que pode ser fácil, normal ou difícil e answers: um array de objetos 
           com value: a alternativa, e correct: bollean, true ou false.
           Retorne apenas o array de objetos
