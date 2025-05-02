@@ -56,22 +56,41 @@ export class UsersController {
   }
 
   async sendContent(req: Request, res: Response): Promise<void> {
-    const { content, alternatives, questionsCount } = req.body;
+    const { content, alternatives, questionsCount, questionsType } = req.body;
 
     const together = new Together({
       apiKey: process.env.TOGETHER_API_KEY,
     });
 
+    let message = '';
+
+    if (questionsType == 'closed') {
+      message = `
+          Gere ${questionsCount} questões, com ${alternatives} alternativas cada sobre o conteudo a seguir:\n\n${content}.
+          Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, 
+          que pode ser fácil, normal ou difícil e answers: um array de objetos 
+          com value: a alternativa, e correct: bollean, true ou false, 
+          um campo questionType que deve ser string com o valor 'closed'
+          Retorne apenas o array de objetos
+          `;
+    }
+
+    if (questionsType == 'opened') {
+      message = `
+          Gere ${questionsCount} questões, sobre o conteudo a seguir:\n\n${content}.
+          Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, 
+          que pode ser fácil, normal ou difícil e answers: um array de objetos 
+          com value: o tema central do que deve ser a resposta, e correct: bollean, que deve sempre ser true, 
+          um campo questionType que deve ser string com o valor 'opened'
+          Retorne apenas o array de objetos
+          `;
+    }
+
     const response = await together.chat.completions.create({
       messages: [
         {
           role: 'user',
-          content: `
-          Gere ${questionsCount} questões, com ${alternatives} alternativas cada sobre o conteudo a seguir:\n\n${content}.
-          Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, que pode ser fácil, normal ou difícil e answers: um array de objetos 
-          com value: a alternativa, e correct: bollean, true ou false.
-          Retorne apenas o array de objetos
-          `,
+          content: message,
         },
       ],
       model: 'meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8',
