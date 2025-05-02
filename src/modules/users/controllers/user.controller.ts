@@ -30,7 +30,7 @@ export class UsersController {
 
   async saveQuestion(req: Request, res: Response): Promise<void> {
     const createQuestion = new SaveQuestionService();
-    const { title, level, answers } = req.body;
+    const { title, level, answers, type } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -40,6 +40,7 @@ export class UsersController {
     const quest = await createQuestion.execute({
       title,
       level,
+      type,
       answers,
       userId,
     });
@@ -56,7 +57,7 @@ export class UsersController {
   }
 
   async sendContent(req: Request, res: Response): Promise<void> {
-    const { content, alternatives, questionsCount, questionsType } = req.body;
+    const { content, alternatives, questionsCount, type } = req.body;
 
     const together = new Together({
       apiKey: process.env.TOGETHER_API_KEY,
@@ -64,24 +65,24 @@ export class UsersController {
 
     let message = '';
 
-    if (questionsType == 'closed') {
+    if (type == 'closed') {
       message = `
           Gere ${questionsCount} questões, com ${alternatives} alternativas cada sobre o conteudo a seguir:\n\n${content}.
           Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, 
           que pode ser fácil, normal ou difícil e answers: um array de objetos 
           com value: a alternativa, e correct: bollean, true ou false, 
-          um campo questionType que deve ser string com o valor 'closed'
+          um campo type que deve ser string com o valor 'closed'
           Retorne apenas o array de objetos
           `;
     }
 
-    if (questionsType == 'opened') {
+    if (type == 'opened') {
       message = `
           Gere ${questionsCount} questões, sobre o conteudo a seguir:\n\n${content}.
           Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, 
           que pode ser fácil, normal ou difícil e answers: um array de objetos 
           com value: o tema central do que deve ser a resposta, e correct: bollean, que deve sempre ser true, 
-          um campo questionType que deve ser string com o valor 'opened'
+          um campo type que deve ser string com o valor 'opened'
           Retorne apenas o array de objetos
           `;
     }

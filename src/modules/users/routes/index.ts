@@ -66,6 +66,9 @@ usersRouter.post(
       level: Joi.string().required().messages({
         'string.empty': 'Level não pode estar vazio.',
       }),
+      type: Joi.string().required().messages({
+        'string.empty': 'Tipo não pode estar vazio.',
+      }),
       answers: Joi.array().required().messages({
         'string.empty': 'Answers não pode estar vazio.',
       }),

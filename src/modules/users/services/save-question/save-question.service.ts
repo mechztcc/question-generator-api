@@ -4,6 +4,7 @@ import GlobalErrors from '../../../../shared/errors/global-error';
 interface IPayload {
   title: string;
   level: Level;
+  type: 'closed' | 'opened';
   answers: { correct: boolean; value: string }[];
   userId: number;
 }
@@ -15,7 +16,7 @@ export class SaveQuestionService {
     this._prisma = new PrismaClient();
   }
 
-  async execute({ title, level, answers, userId: id }: IPayload) {
+  async execute({ title, level, answers, type, userId: id }: IPayload) {
     const userExists = await this._prisma.user.findUnique({ where: { id } });
     if (!userExists) {
       throw new GlobalErrors('User not found.', 401);
@@ -25,6 +26,7 @@ export class SaveQuestionService {
       data: {
         title,
         level,
+        type,
         userId: userExists.id,
         answers: {
           create: answers.map((el) => {
