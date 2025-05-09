@@ -6,6 +6,7 @@ import { log } from 'console';
 import { SaveQuestionService } from '../services/save-question/save-question.service';
 import GlobalErrors from '../../../shared/errors/global-error';
 import { ListSavedQuestionsByUserService } from '../services/list-saved-questions-by-user/list-saved-questions-by-user.service';
+import { VerifyAnswerService } from '../services/verify-answer/verify-answer.service';
 
 export class UsersController {
   async create(req: Request, res: Response): Promise<void> {
@@ -56,6 +57,15 @@ export class UsersController {
     res.json(questions);
   }
 
+  async onVerifyAnswer(req: Request, res: Response) {
+    const verifyAnswerService = new VerifyAnswerService();
+    const { question, value, context } = req.body;
+
+    const result = await verifyAnswerService.execute({ question, value, context });
+
+    res.json(result)
+  }
+
   async sendContent(req: Request, res: Response): Promise<void> {
     const { content, alternatives, questionsCount, type } = req.body;
 
@@ -79,10 +89,12 @@ export class UsersController {
     if (type == 'opened') {
       message = `
           Gere ${questionsCount} questões, sobre o conteudo a seguir:\n\n${content}.
-          Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, level: com a dificuldade, 
+          Monte a resposta contendo um array de objetos questões, com title: onde será o titulo da pergunta, 
+          context que justifique a alternativa correta,
+          level: com a dificuldade, 
           que pode ser fácil, normal ou difícil e answers: um array de objetos 
           com value: o tema central do que deve ser a resposta, e correct: bollean, que deve sempre ser true, 
-          um campo type que deve ser string com o valor 'opened'
+          um campo type que deve ser string com o valor 'opened',
           Retorne apenas o array de objetos
           `;
     }

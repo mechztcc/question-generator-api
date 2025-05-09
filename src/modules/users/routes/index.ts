@@ -88,4 +88,12 @@ usersRouter.get(
   ),
 );
 
+usersRouter.post(
+  '/verify-response',
+  authenticateUser,
+  asyncHandler((req: Request, res: Response) =>
+    usersController.onVerifyAnswer(req, res),
+  ),
+);
+
 export default usersRouter;
