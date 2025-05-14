@@ -46,6 +46,7 @@ model Question {
   title     String
   type      QuestionType
   level     Level
+  context   String
   answers   Answer[]
   user      User         @relation(fields: [userId], references: [id])
   userId    Int

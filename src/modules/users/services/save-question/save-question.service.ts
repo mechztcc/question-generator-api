@@ -5,6 +5,7 @@ interface IPayload {
   title: string;
   level: Level;
   type: 'closed' | 'opened';
+  context: string;
   answers: { correct: boolean; value: string }[];
   userId: number;
 }
@@ -16,7 +17,7 @@ export class SaveQuestionService {
     this._prisma = new PrismaClient();
   }
 
-  async execute({ title, level, answers, type, userId: id }: IPayload) {
+  async execute({ title, level, answers, type, context, userId: id }: IPayload) {
     const userExists = await this._prisma.user.findUnique({ where: { id } });
     if (!userExists) {
       throw new GlobalErrors('User not found.', 401);
@@ -27,6 +28,7 @@ export class SaveQuestionService {
         title,
         level,
         type,
+        context,
         userId: userExists.id,
         answers: {
           create: answers.map((el) => {

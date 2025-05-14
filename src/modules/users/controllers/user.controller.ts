@@ -31,7 +31,7 @@ export class UsersController {
 
   async saveQuestion(req: Request, res: Response): Promise<void> {
     const createQuestion = new SaveQuestionService();
-    const { title, level, answers, type } = req.body;
+    const { title, level, answers, type, context = '' } = req.body;
     const userId = req.user?.id;
 
     if (!userId) {
@@ -42,6 +42,7 @@ export class UsersController {
       title,
       level,
       type,
+      context,
       answers,
       userId,
     });
