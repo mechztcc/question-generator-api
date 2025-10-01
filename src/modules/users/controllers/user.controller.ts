@@ -1,11 +1,10 @@
 import { Request, Response } from 'express';
+import Together from 'together-ai';
+import GlobalErrors from '../../../shared/errors/global-error';
 import { AutenticateUsersService } from '../services/autenticate/autenticate-users.service';
 import { CreateUsersService } from '../services/create-users/create-users.service';
-import Together from 'together-ai';
-import { log } from 'console';
-import { SaveQuestionService } from '../services/save-question/save-question.service';
-import GlobalErrors from '../../../shared/errors/global-error';
 import { ListSavedQuestionsByUserService } from '../services/list-saved-questions-by-user/list-saved-questions-by-user.service';
+import { SaveQuestionService } from '../services/save-question/save-question.service';
 import { VerifyAnswerService } from '../services/verify-answer/verify-answer.service';
 
 export class UsersController {
